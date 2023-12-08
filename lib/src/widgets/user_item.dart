@@ -17,7 +17,7 @@ class _UserItemState extends State<UserItem> {
   Widget build(BuildContext context) => 
   GestureDetector(
     onTap:(){
-      
+        
     },
     child:
     ListTile(

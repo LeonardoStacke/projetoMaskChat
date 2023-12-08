@@ -4,10 +4,11 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
 class AuthGate extends StatefulWidget {
-  const AuthGate({super.key});
-
+  const AuthGate({super.key, required this.isCadastro});
+  final bool isCadastro;
   @override
   State<AuthGate> createState() => _AuthGateState();
+  
 }
 
 class _AuthGateState extends State<AuthGate> {
@@ -22,7 +23,7 @@ class _AuthGateState extends State<AuthGate> {
           context, MaterialPageRoute(builder: (context)=> LoginPage(title: 'oi',)));
       }else{
         Navigator.pushReplacement(
-          context, MaterialPageRoute(builder: (context)=> CalcPage()));
+          context, MaterialPageRoute(builder: (context)=> CalcPage(isCadastro: widget.isCadastro,)));
       }
     });
   }

@@ -24,8 +24,6 @@ Future<void> main() async {
 
   timeago.setLocaleMessages('pt_br', timeago.PtBrShortMessages());
   runApp(
-    
-    
     ChangeNotifierProvider(
       
       create: (context) =>ThemeProvider(),
@@ -47,7 +45,7 @@ class MyApp extends StatelessWidget {
      child: MaterialApp(
       debugShowCheckedModeBanner: false,
       theme: Provider.of<ThemeProvider>(context).themeData,
-      home: AuthGate(),
+      home: AuthGate(isCadastro: false,),
       
     )
     );

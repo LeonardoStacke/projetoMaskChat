@@ -9,23 +9,29 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/services.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:provider/provider.dart';
+
 bool mostrarAviso = false;
 String senhaCalc = '';
 
 class CalcPage extends StatefulWidget {
-  const CalcPage({Key? key}) : super(key: key);
+  const CalcPage({Key? key, required this.isCadastro}) : super(key: key);
+  final bool isCadastro;
 
   @override
   _CalcPageState createState() => _CalcPageState();
+
+  removerSenhaLocalmente() {}
 }
 
 class _CalcPageState extends State<CalcPage> {
   bool popUpShown = false;
   final controller = CalcController();
   final myController = TextEditingController();
+  bool isCadastro = false;
 
   Future<void> _checkAndNavigate(BuildContext context) async {
     // Recupera a senhaCalc da memória local
+    print('isCadastro: $isCadastro');
     SharedPreferences prefs = await SharedPreferences.getInstance();
     String savedSenhaCalc = prefs.getString('senhaDeAcesso') ?? '';
     print('Senha $savedSenhaCalc');
@@ -33,9 +39,10 @@ class _CalcPageState extends State<CalcPage> {
     // Chama mostrarPopUp se a senha ainda não estiver definida
     if (savedSenhaCalc.isEmpty) {
       mostrarPopUp(context);
+      isCadastro = false;
     } else {
-      if (controller.clickValue == '√' && controller.display == savedSenhaCalc) {
-        
+      if (controller.clickValue == '√' &&
+          controller.display == savedSenhaCalc) {
         Navigator.push(
           context,
           MaterialPageRoute(builder: (context) => ConversasPagePlus()),
@@ -50,6 +57,13 @@ class _CalcPageState extends State<CalcPage> {
   Future<void> _saveSenhaCalcInLocalStorage(String senhaCalc) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     await prefs.setString('senhaDeAcesso', senhaCalc);
+  }
+
+  Future<void> removerSenhaLocalmente() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    senhaCalc = '';
+    // Remove o valor associado à chave 'senhaDeAcesso'
+    await prefs.remove('senhaDeAcesso');
   }
 
   Future<void> mostrarPopUp(BuildContext context) async {
@@ -172,7 +186,6 @@ class _CalcPageState extends State<CalcPage> {
 
   @override
   void initState() {
-    
     super.initState();
     controller.addListener(_listener);
     mostrarAviso = false;

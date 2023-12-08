@@ -23,7 +23,7 @@ import 'package:timeago/timeago.dart' as timeago;
 
 class ConversasPagePlus extends StatefulWidget {
   const ConversasPagePlus({super.key,});
-  
+
 
   @override
   State<ConversasPagePlus> createState() => _ConversasPagePlusState();
@@ -31,6 +31,8 @@ class ConversasPagePlus extends StatefulWidget {
 
 class _ConversasPagePlusState extends State<ConversasPagePlus> {
   @override
+
+  
   final myController = TextEditingController();
   final myController2 = TextEditingController();
   final _firebaseAuth = FirebaseAuth.instance;
@@ -38,7 +40,7 @@ class _ConversasPagePlusState extends State<ConversasPagePlus> {
   signOut() async {
 
     await _firebaseAuth.signOut().then((user) => 
-      Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => AuthGate()))
+      Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => AuthGate(isCadastro: false)))
     );
   }
 
@@ -313,7 +315,7 @@ class _ConversasPagePlusState extends State<ConversasPagePlus> {
           onPressed: (){
             Navigator.push(
             context,
-            MaterialPageRoute(builder: (context) => CalcPage()),
+            MaterialPageRoute(builder: (context) => CalcPage(isCadastro: false,)),
           );
           },
           child: 

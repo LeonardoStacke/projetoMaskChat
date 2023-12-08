@@ -1,12 +1,15 @@
+import 'package:calculadora/services/auth/auth_gate.dart';
+import 'package:calculadora/src/calc_page.dart';
 import 'package:email_validator/email_validator.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'login_page.dart';
 
 
 class CadastroPage extends StatefulWidget {
-  const CadastroPage({Key? key, required this.title}) : super(key: key);
-  final String title;
+  const CadastroPage({Key? key}) : super(key: key);
+
 
   @override
   State<CadastroPage> createState() => _CadastroPageState();
@@ -16,10 +19,17 @@ class _CadastroPageState extends State<CadastroPage> {
   final _formKey = GlobalKey<FormState>();
   var rememberValue = false;
 
+  final nomeController = TextEditingController();
+  final sobrenomeController = TextEditingController();
+  final emailController = TextEditingController();
+  final passwordController = TextEditingController();
+  final _firebaseAuth = FirebaseAuth.instance;
+
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      resizeToAvoidBottomInset: false,
       backgroundColor: Theme.of(context).colorScheme.background,
       body: Container(
         padding: const EdgeInsets.all(20),
@@ -27,12 +37,18 @@ class _CadastroPageState extends State<CadastroPage> {
           mainAxisAlignment: MainAxisAlignment.center,
           crossAxisAlignment: CrossAxisAlignment.center,
           children: <Widget>[
-            const Text(
-              'Criar uma nova conta',
-              style: TextStyle(
-                fontWeight: FontWeight.bold,
-                fontSize: 26,
-              ),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                const Text(
+                  'Criar uma nova conta ',
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 26,
+                  ),
+                ),
+                Icon(Icons.person_add)
+              ],
             ),
             const SizedBox(
               height: 60,
@@ -45,9 +61,7 @@ class _CadastroPageState extends State<CadastroPage> {
                     children: [
                       Expanded(
                         child: TextFormField(
-                          validator: (value) => EmailValidator.validate(value!)
-                              ? null
-                              : "Por favor, insira um e-mail válido",
+                          controller: nomeController,
                           maxLines: 1,
                           decoration: InputDecoration(
                             hintText: 'Nome',
@@ -63,9 +77,7 @@ class _CadastroPageState extends State<CadastroPage> {
                       ),
                       Expanded(
                         child: TextFormField(
-                          validator: (value) => EmailValidator.validate(value!)
-                              ? null
-                              : "Por favor, insira um e-mail válido",
+                          controller: sobrenomeController,
                           maxLines: 1,
                           decoration: InputDecoration(
                             hintText: 'Sobrenome',
@@ -82,6 +94,7 @@ class _CadastroPageState extends State<CadastroPage> {
                     height: 20,
                   ),
                   TextFormField(
+                    controller: emailController,
                     validator: (value) => EmailValidator.validate(value!)
                         ? null
                         : "Por favor, insira um e-mail válido",
@@ -98,6 +111,7 @@ class _CadastroPageState extends State<CadastroPage> {
                     height: 20,
                   ),
                   TextFormField(
+                    controller: passwordController,
                     validator: (value) {
                       if (value == null || value.isEmpty) {
                         return 'Por favor, insira sua senha';
@@ -119,7 +133,10 @@ class _CadastroPageState extends State<CadastroPage> {
                   ),
                   ElevatedButton(
                     onPressed: () {
-                      if (_formKey.currentState!.validate()) {}
+                      if (_formKey.currentState!.validate()) {
+                        signUp();
+                        
+                      }
                     },
                     style: ElevatedButton.styleFrom(
                       padding: const EdgeInsets.fromLTRB(40, 15, 40, 15),
@@ -148,7 +165,7 @@ class _CadastroPageState extends State<CadastroPage> {
                             ),
                           );
                         },
-                        child: const Text('Entrar'),
+                        child: const Text('Entrar', style: TextStyle(color:Colors.pink),),
                       ),
                     ],
                   ),
@@ -160,4 +177,26 @@ class _CadastroPageState extends State<CadastroPage> {
       ),
     );
   }
+  signUp() async {
+  try {
+    UserCredential userCredential = await _firebaseAuth.createUserWithEmailAndPassword(
+      email: emailController.text, password: passwordController.text,
+    );
+
+    // Atualiza o nome de exibição concatenando nomeController e sobrenomeController
+    await userCredential.user!.updateDisplayName(nomeController.text + sobrenomeController.text);
+
+    // Navega para a tela AuthGate e remove todas as telas anteriores
+    Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (context) => AuthGate(isCadastro: true,)), (route) => false);
+  } catch (e) {
+    // Manipula os erros
+    print("Erro durante o registro: $e");
+    // Você pode querer mostrar uma mensagem de erro ao usuário aqui
+  }
+}
+
+void onClickRemoverVariavel(BuildContext context) async {
+    await CalcPage(isCadastro: false,).removerSenhaLocalmente();
+  }
+
 }
